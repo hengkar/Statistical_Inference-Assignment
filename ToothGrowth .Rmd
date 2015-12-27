@@ -1,0 +1,116 @@
+---
+title: ''
+output:
+  pdf_document: default
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.path='figure/')
+```
+
+## The Effect of Vitamin C on Tooth Growth in Guinea Pigs
+
+Lau Heng Kar
+
+December 26, 2015 (Statistical Inference Course Project)
+
+## Overview
+
+Now in the second portion of the class, we're going to analyze the ToothGrowth data in the R datasets package. 
+1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+2. Provide a basic summary of the data.
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+4. State your conclusions and the assumptions needed for your conclusions.
+
+## Loading and Exploring Data
+
+```{r Loading-Data, cache=TRUE}
+require(datasets)
+data(ToothGrowth)
+str(ToothGrowth)
+head(ToothGrowth, 3)
+tail(ToothGrowth, 3)
+```
+
+## Basic summary of the data
+
+The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+```{r Summary, cache=TRUE}
+summary(ToothGrowth)
+table(ToothGrowth$dose, ToothGrowth$dose)
+```
+
+```{r Summary-Plot, echo=FALSE, cache=TRUE}
+require(ggplot2)
+require(gridExtra)
+
+# plot ggplot categorized by supplement
+suppplot <- ggplot(data = ToothGrowth, aes(x = dose, y = len)) +
+    geom_boxplot(aes(fill = supp)) + 
+    theme(legend.position="none") + 
+    facet_grid(.~supp)
+
+# plot ggplot categorized by dose
+doseplot <- ggplot(data = ToothGrowth, aes(x = supp, y = len)) +
+    geom_boxplot(aes(fill = supp)) + 
+    theme(legend.position="none") + 
+    facet_grid(.~dose) 
+
+# align plot
+grid.arrange(doseplot, suppplot, ncol = 2)
+```
+
+## Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose
+
+```{r Confidence-Intervals, cache=TRUE}
+# data frame for both VC and OJ
+groupVc <- ToothGrowth[ToothGrowth$supp=='VC',]
+groupOJ <- ToothGrowth[ToothGrowth$supp=='OJ',]
+```
+
+### Supp : VC, OJ
+
+```{r Confidence-Intervals-VC-OJ, cache=TRUE}
+# t.test for both group
+difference <- groupVc$len - groupOJ$len
+t1 <- t.test(groupVc$len, groupOJ$len, paired = TRUE)
+```
+
+*Conclusion:* We obtained p-value (**`r t1$p.value`**) and 95% confident internal (**`r t1$conf.int[1:2]`**). p-value is smaller than 0.05, then we can conclude that the averages of two groups are not significantly similar. This confirms that we can **reject** the null hypothesis H0 of equality of the means.
+
+### Dose : 0.5 mg
+
+```{r Confidence-Intervals-Dose-0.5, cache=TRUE}
+# t.test for both group for dose == 0.5
+difference <- groupVc[groupVc$dose == "0.5", ]$len - groupOJ[groupOJ$dose == "0.5", ]$len
+t2 <- t.test(groupVc[groupVc$dose == "0.5", ]$len, groupOJ[groupOJ$dose == "0.5", ]$len, paired = TRUE)
+```
+
+*Conclusion:* We obtained p-value (**`r t2$p.value`**) and 95% confident internal (**`r t2$conf.int[1:2]`**). p-value is smaller than 0.05, then we can conclude that the averages of two groups are not significantly similar. This confirms that we can **reject** the null hypothesis H0 of equality of the means.
+
+### Dose : 1.0 mg
+
+```{r Confidence-Intervals-Dose-1.0, cache=TRUE}
+# t.test for both group for dose == 1
+difference <- groupVc[groupVc$dose == "1", ]$len - groupOJ[groupOJ$dose == "1", ]$len
+t3 <- t.test(groupVc[groupVc$dose == "1", ]$len, groupOJ[groupOJ$dose == "1", ]$len, paired = TRUE)
+```
+
+*Conclusion:* We obtained p-value (**`r t3$p.value`**) and 95% confident internal (**`r t3$conf.int[1:2]`**). p-value is smaller than 0.05, then we can conclude that the averages of two groups are not significantly similar. This confirms that we can **reject** the null hypothesis H0 of equality of the means.
+
+### Dose : 2.0 mg
+
+```{r Confidence-Intervals-Dose-2.0, cache=TRUE}
+# t.test for both group for dose == 2
+difference <- groupVc[groupVc$dose == "2", ]$len - groupOJ[groupOJ$dose == "2", ]$len
+t4 <- t.test(groupVc[groupVc$dose == "2", ]$len, groupOJ[groupOJ$dose == "2", ]$len, paired = TRUE)
+```
+
+*Conclusion:* We obtained p-value (**`r t4$p.value`**) and 95% confident internal (**`r t4$conf.int[1:2]`**). p-value is greater than 0.05, then we can conclude that the averages of two groups are significantly similar. This confirms that we can **accept** the null hypothesis H0 of equality of the means.
+
+## Conclusions
+With the values obtained it can be assumed that there is a significantly similar in the growth of the tooth while the dose is 2.0 mg.
